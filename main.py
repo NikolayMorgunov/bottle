@@ -15,7 +15,7 @@ clock = Clock()
 
 class Hero:
     place = (95, 215)
-    v = 7
+    v = 9
     face = pygame.image.load("Michael.png")
     def show(self):
         window.blit(self.face, self.place)
@@ -23,13 +23,14 @@ class Hero:
 hero = Hero()
 class Bottle:
     global hero
-    place = hero.place
+    bottle_pict = pygame.image.load("Bottle.png")
+    place = (720, random.randint(0, 430))
     v = random.randint(-10, -3)
     def show(self):
-        pygame.draw.rect(window, (255, 0, 0), [self.place[0], self.place[1], 25, 25])
+        window.blit(self.bottle_pict, (self.place[0], self.place[1] + 30))
 
 class Dildo:
-    place = hero.place
+    place = (0, 0)
     dildo_pict = pygame.image.load("Dildo.png")
     v = 9
     def show(self):
@@ -41,13 +42,15 @@ def draw_all():
     hero.show()
     for i in dildos:
         i.show()
+    for i in bottles:
+        i.show()
 
 
 FIELD = pygame.image.load("Field.png")
 bottles = []
 dildos = []
+space_pressed = False
 while True:
-    space_pressed = False
     for event in pygame.event.get():
         from pygame import QUIT
         if event.type == QUIT:
@@ -57,14 +60,18 @@ while True:
 
     window.blit(FIELD, (0, 0))
     draw_all()
-    fps = fps % 40
     fps += 1
+    fps = fps % 60
 
     if not fps:
         if random.choice([True, False]):
             bottles.append(Bottle())
+            bottles[-1].place = (720, random.randint(0, 430))
+            bottles[-1].v = random.randint(-7, -3)
     for i in range(len(bottles)):
-        bottles[i].place[0] += bottles[i].v
+        bottles[i].place = (bottles[i].place[0] + bottles[i].v, bottles[i].place[1])
+
+    bottles = list(filter(lambda x: x.place[0] > -100, bottles))
     for i in range(len(dildos)):
         dildos[i].place = (dildos[i].place[0] + dildos[i].v, dildos[i].place[1])
 
@@ -78,7 +85,9 @@ while True:
     elif pressed[K_SPACE] and not space_pressed:
         dildos.append(Dildo())
         space_pressed = True
+        dildos[-1].place = hero.place
 
+    dildos = list(filter(lambda x: x.place[0] < 720, dildos))
     if not pressed[K_SPACE]:
         space_pressed = False
 
